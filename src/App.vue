@@ -7,11 +7,11 @@
 </template>
 
 <script>
-import Main from "./components/Main"
+import Game from "./components/Game"
 
 export default {
   name: 'app',
-  components: Main
+  components: Game
 }
 </script>
 
