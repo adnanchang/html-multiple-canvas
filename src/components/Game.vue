@@ -11,6 +11,7 @@
 <script>
 import GameContext from "./../js/GameContext.js";
 import Character from "./../js/Character.js"
+import BiggerGameContext from "./../js/BiggerGameContext.js"
 
 export default {
   name: 'Game',
@@ -31,7 +32,8 @@ export default {
   mounted: function(){
     var canvas = document.getElementById("game");
     var ctx = canvas.getContext("2d");
-    this.vars.canvas = new GameContext(ctx);
+    // this.vars.canvas = new GameContext(ctx); THIS IS THE SMALLER GAME
+    this.vars.canvas = new BiggerGameContext(ctx);
   }
 }
 </script>
