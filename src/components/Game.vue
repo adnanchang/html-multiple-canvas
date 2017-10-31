@@ -10,6 +10,7 @@
 
 <script>
 import GameContext from "./../js/GameContext.js";
+import Character from "./../js/Character.js"
 
 export default {
   name: 'Game',
@@ -28,9 +29,9 @@ export default {
 
   //Letting the external
   mounted: function(){
-    var canvas_1 = document.getElementById("game");
-    var ctx_1 = canvas_1.getContext("2d");
-    this.vars.canvas = new GameContext(ctx_1);
+    var canvas = document.getElementById("game");
+    var ctx = canvas.getContext("2d");
+    this.vars.canvas = new GameContext(ctx);
   }
 }
 </script>

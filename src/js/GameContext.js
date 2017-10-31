@@ -1,5 +1,6 @@
 //Following instructions from http://technologies4.me/articles/tile-map-canvas-javascript-a1/
 import Character from "./Character.js"
+
 export default class GameContext {
   constructor(ctx) {
     this.ctx = ctx; //Context
@@ -44,8 +45,13 @@ export default class GameContext {
 
     //Our player on screen
     this.player = new Character();
-
     this.animate();
+    this.onKeyDown();
+    this.onKeyUp();
+
+    GameContext.prototype.getTileW = function () {
+      return this.tileW;
+    };
   }
 
   animate() {
@@ -54,10 +60,31 @@ export default class GameContext {
     // this.test
   }
 
+  onKeyDown() {
+    var self = this;
+    window.addEventListener("keydown", function(event) {
+      if (event.keyCode >= 37 && event.keyCode <= 40) {
+        self.keydown[event.keyCode] = true;
+      }
+    });
+  }
+
+  onKeyUp() {
+    var self = this;
+    window.addEventListener("keyup", function(event) {
+      if (event.keyCode >= 37 && event.keyCode <= 40) {
+        self.keydown[event.keyCode] = false;
+      }
+    });
+  }
+
   drawGame() {
     if (this.ctx == null) {
       return;
     }
+
+    var currentFrameTime = Date.now();
+    var timeElapsed = currentFrameTime - this.lastFrameTime;
 
     var sec = Math.floor(Date.now()/1000);
     if(sec != this.currentSecond)
@@ -87,11 +114,55 @@ export default class GameContext {
 
     this.ctx.fillStyle = "#ff0000";
     this.ctx.fillText("FPS: " + this.framesLastSecond, 10, 20);
-
+    
     // requestAnimationFrame(this.drawGame); THIS IS A PROBLEM! DON'T UNCOMMENT IT ADNAN! YOU FOOL!
+  
+    //Player movement and input
+    if (!this.player.processMovement(currentFrameTime)) {
+      //Moving the player based on the key press
+      if (this.keydown[38] 
+        && this.player.tileFrom[1] > 0 
+        && this.gameMap[this.toIndex(this.player.tileFrom[0], this.player.tileFrom[1] - 1)] == 1) {
+          console.log("Key Pressed");
+          this.player.tileTo[1] -= 1;
+      }
+      else if (this.keydown[40] 
+        && this.player.tileFrom[1] < (this.mapH - 1) 
+        && this.gameMap[this.toIndex(this.player.tileFrom[0], this.player.tileFrom[1] + 1)] == 1) { 
+          this.player.tileTo[1] += 1; 
+      }
+      else if (this.keydown[37] 
+        && this.player.tileFrom[0] > 0 
+        && this.gameMap[this.toIndex(this.player.tileFrom[0] - 1, this.player.tileFrom[1])] == 1) { 
+          this.player.tileTo[0]-= 1; 
+      }
+      else if (this.keydown[39] 
+        && this.player.tileFrom[0] < (this.mapW - 1) 
+        && this.gameMap[this.toIndex(this.player.tileFrom[0]+1, this.player.tileFrom[1])] == 1) { 
+          this.player.tileTo[0] += 1; 
+      }
+
+      /**
+       * Afterwards, we do a quick test to see if the destination (tileTo) 
+       * is now different from the current tile (tileFrom). 
+       * If so, we update the player timeMoved to the currentFrameTime, 
+       * and close this input processing block:
+       */
+      if (this.player.tileFrom[0] != this.player.tileTo[0] 
+        || this.player.tileFrom[1] != this.player.tileTo[1]) { 
+        this.player.timeMoved = currentFrameTime; 
+      }
+    }
+
+    //Draw the player
+    this.ctx.fillStyle = "#0000FF";
+    this.ctx.fillRect(this.player.position[0], this.player.position[1], 
+    this.player.dimensions[0], this.player.dimensions[1]);
   }
 
-  test() {
-    console.log(this.ctx);
+  toIndex(x, y){
+    return ((y * this.mapW) + x);
   }
+
+  
 }
