@@ -15,6 +15,7 @@ export default class PanContext {
     this.totalSeconds = 0;
     this.lastTimeFrame = 0;
     this.looping = false;
+    this.whatItShouldBe = 0;
 
     this.draw(0);
 
@@ -41,6 +42,7 @@ export default class PanContext {
 
     if (this.looping) {
       this.lastTimeFrame = Date.now();
+      this.whatItShouldBe = this.totalSeconds + 4;
       requestAnimationFrame(this.loop.bind(this));
     }
   }
@@ -56,11 +58,10 @@ export default class PanContext {
     console.log("Delta: " + deltaSeconds);
     this.draw(0.2);
 
-    var whatItShouldBe = 4;
-    console.log("WHAT IT SHOULD BE: " + whatItShouldBe);
+    console.log("WHAT IT SHOULD BE: " + this.whatItShouldBe);
     console.log("TOTAL SECONDS: " + this.totalSeconds);
     console.log("LOOPING: " + this.looping);
-    if (this.totalSeconds >= whatItShouldBe){
+    if (this.totalSeconds >= this.whatItShouldBe){
       this.looping = false;
     }
   }
