@@ -54,7 +54,7 @@ export default class PanContext {
     var deltaSeconds = (now - this.lastTimeFrame) / 1000;
     this.lastTimeFrame = now;
     console.log("Delta: " + deltaSeconds);
-    this.draw(deltaSeconds);
+    this.draw(0.2);
 
     var whatItShouldBe = 4;
     console.log("WHAT IT SHOULD BE: " + whatItShouldBe);
