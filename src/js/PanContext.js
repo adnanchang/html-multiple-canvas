@@ -32,7 +32,7 @@ export default class PanContext {
     var y = -1 * (this.img.height - this.ctx.canvas.height) / 2 * (1 + -Math.sin(this.totalSeconds / Math.PI));
     // console.log("X : " + x);
     // console.log("Y : " + y);
-    console.log(this.img.width + " : " + this.img.height);
+    // console.log(x + " : " + y + " AND TIME IS: " + this.totalSeconds);
     this.ctx.drawImage(this.img, x, y);
   }
 
@@ -53,6 +53,15 @@ export default class PanContext {
     var now = Date.now();
     var deltaSeconds = (now - this.lastTimeFrame) / 1000;
     this.lastTimeFrame = now;
+    console.log("Delta: " + deltaSeconds);
     this.draw(deltaSeconds);
+
+    var whatItShouldBe = 4;
+    console.log("WHAT IT SHOULD BE: " + whatItShouldBe);
+    console.log("TOTAL SECONDS: " + this.totalSeconds);
+    console.log("LOOPING: " + this.looping);
+    if (this.totalSeconds >= whatItShouldBe){
+      this.looping = false;
+    }
   }
 }
