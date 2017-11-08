@@ -32,7 +32,11 @@ export default {
   mounted: function(){
     var canvas_1 = document.getElementById("canvas");
     var ctx_1 = canvas_1.getContext("2d");
-    this.vars.canvas = new PanContext(ctx_1);
+    //Making the offscreen canvas
+    var offScreenCavnas = document.createElement("canvas");
+    var offScreenCtx = offScreenCavnas.getContext("2d");
+
+    this.vars.canvas = new PanContext(ctx_1, offScreenCtx);
   }
 }
 </script>

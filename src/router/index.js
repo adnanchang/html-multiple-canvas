@@ -15,15 +15,15 @@ export default new Router({
     //   name: 'Hello',
     //   component: HelloWorld
     // }
-    // {
-    //   path: '/',
-    //   name: 'MyPan',
-    //   component: MyPan
-    // }
     {
       path: '/',
-      name: 'Pan',
-      component: Pan
+      name: 'MyPan',
+      component: MyPan
     }
+    // {
+    //   path: '/',
+    //   name: 'Pan',
+    //   component: Pan
+    // }
   ]
 })
