@@ -12,6 +12,13 @@ export default class PanContext {
     this.offScreenCtx.canvas.width = this.ctx.canvas.width * 2;
     this.offScreenCtx.canvas.height = this.ctx.canvas.height * 2;
 
+    //Different b/w their sizes
+    this.widthDifference = this.offScreenCtx.canvas.width - this.ctx.canvas.width;
+    this.heightDifference = this.offScreenCtx.canvas.height - this.ctx.canvas.height;
+
+    console.log(this.widthDifference);
+    console.log(this.heightDifference);
+
     //Some Global Variables
     this.global = {
       scale : 1,
@@ -31,8 +38,10 @@ export default class PanContext {
         y : 0
       }
     };
+    this.oneTimeToggle = true;
 
     this.draw();
+    this.drawOffScreen(this.offScreenCtx.canvas, 0, 0);
     this.startPanHandler = this.startPan.bind(this);
     this.trackMouseHandler = this.trackMouse.bind(this);
     this.panHandler = this.pan.bind(this);
@@ -41,25 +50,42 @@ export default class PanContext {
   }
 
   draw() {
+    // We draw everything on the offscreen canvas
     //Drawing a square
-    this.ctx.beginPath();
-    this.ctx.rect(50,50,100,100);
-    this.ctx.fillStyle='skyblue';
-    this.ctx.fill();
+    this.offScreenCtx.beginPath();
+    this.offScreenCtx.rect(50,50,100,100);
+    this.offScreenCtx.fillStyle='skyblue';
+    this.offScreenCtx.fill();
 
     //Drawing a circle
-    this.ctx.beginPath();
-    this.ctx.arc(350, 250, 50, 0 , 2 * Math.PI, false);
-    this.ctx.fillStyle = 'green';
-    this.ctx.fill();
+    this.offScreenCtx.beginPath();
+    this.offScreenCtx.arc(350, 250, 50, 0 , 2 * Math.PI, false);
+    this.offScreenCtx.fillStyle = 'green';
+    this.offScreenCtx.fill();
+  }
+
+  drawOffScreen(x, y){
+    this.ctx.drawImage(this.offScreenCtx.canvas, x, y)
   }
 
   startPan(event) {
     window.addEventListener("mousemove", this.trackMouseHandler);
     window.addEventListener("mousemove", this.panHandler);
     window.addEventListener("mouseup", this.endPanHandler);
-    this.panning.start.x = event.clientX;
-    this.panning.start.y = event.clientY;
+    
+    //Since the offscreen canvas is bigger than the onscreen canvas
+    //We will add their size differences to the start points of the panning
+    //If we don't add the size difference, the offscreen canvas jumps to where
+    //The mouse is, and that's what we don't want
+    if (this.oneTimeToggle) {
+      this.panning.start.x = event.clientX + this.widthDifference;
+      this.panning.start.y = event.clientY + this.heightDifference;
+      this.oneTimeToggle = false;
+    }
+    else if (!this.oneTimeToggle) {
+      this.panning.start.x = event.clientX;
+      this.panning.start.y = event.clientY;
+    }
   }
 
   endPan(event) {
@@ -84,6 +110,6 @@ export default class PanContext {
     this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
     this.ctx.translate(this.panning.offset.x, this.panning.offset.y);
     console.log("YOU ARE AT { x : " + this.panning.offset.x + ", y : " + this.panning.offset.y + "} ")
-    this.draw();
+    this.drawOffScreen(this.panning.offset.x, this.panning.offset.y);
   }
 }
