@@ -5,6 +5,7 @@ import Main from './../components/Main.vue';
 import Game from './../components/Game.vue';
 import Pan from './../components/Pan.vue';
 import MyPan from './../components/MyPan.vue';
+import ClickPan from './../components/ClickPan.vue'
 
 Vue.use(Router)
 
@@ -15,15 +16,20 @@ export default new Router({
     //   name: 'Hello',
     //   component: HelloWorld
     // }
-    {
-      path: '/',
-      name: 'MyPan',
-      component: MyPan
-    }
+    // {
+    //   path: '/',
+    //   name: 'MyPan',
+    //   component: MyPan
+    // }
     // {
     //   path: '/',
     //   name: 'Pan',
     //   component: Pan
     // }
+    {
+      path: '/',
+      name: 'ClickPan',
+      component: ClickPan
+    }
   ]
 })
