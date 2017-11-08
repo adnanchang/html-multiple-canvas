@@ -54,10 +54,18 @@ export default class PanContext {
       this.panHandler = this.pan.bind(this);
       this.endPanHandler = this.endPan.bind(this);
       window.addEventListener("mousedown", this.startPanHandler);
+
+      //Registering the button!
+      this.btn = document.getElementById('btnStart');
+      this.btn.addEventListener('click', this.toKickStartEventListener.bind(this));
+    }
+
+    toKickStartEventListener() {
+        this.moveTheScreen();
     }
   
     draw() {
-      // We draw everything on the offscreen canvas
+      // We draw everything on the offscreen canvas's canvas
       //Drawing a square
       this.aNewContext.beginPath();
       this.aNewContext.rect(50,50,100,100);
@@ -118,6 +126,20 @@ export default class PanContext {
       this.ctx.translate(this.panning.offset.x, this.panning.offset.y);
       console.log("YOU ARE AT { x : " + this.panning.offset.x + ", y : " + this.panning.offset.y + "} ")
       this.drawOffScreen(this.panning.offset.x, this.panning.offset.y);
+    }
+
+    moveTheScreen() {
+        requestAnimationFrame(this.moveTheScreen.bind(this));
+
+        var newX = -this.ctx.canvas.width;
+        var newY = -this.ctx.canvas.height;
+        var i, j = 0;
+        if (i != newX && j != newY) {
+            i -= 5;
+            j -= 5;
+            this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+            this.drawOffScreen(i, j);
+        }
     }
   }
   
