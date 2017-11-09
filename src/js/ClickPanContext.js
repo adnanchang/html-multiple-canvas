@@ -54,23 +54,22 @@ export default class PanContext {
       this.oneTimeToggle = true;
       this.scrollValue = 0;
       this.speed = 10;
+      this.totalSeconds = 0;
+      this.lastTimeFrame = 0;
       this.looping = false;
-      this.whereAmI = {
-        screen1 : false,
-        screen2 : true,
-        screen3 : false
-      }
+      this.whatItShouldBe = 0;
   
-      this.draw(); // Drawing shapes on the new context
+      this.draw(); // Drawing shapes on the new contexts
       this.offScreenCtx.drawImage(this.aNewContext.canvas, 0, 0);
-      this.offScreenCtx.drawImage(this.aNewContext1.canvas, 1366, 0);
+      this.offScreenCtx.drawImage(this.aNewContext1.canvas, this.ctx.canvas.width * 2, 0);
 
-      this.ctx.drawImage(this.offScreenCtx.canvas, this.ctx.canvas.width, 0);
-      this.startPanHandler = this.startPan.bind(this);
-      this.trackMouseHandler = this.trackMouse.bind(this);
-      this.panHandler = this.pan.bind(this);
-      this.endPanHandler = this.endPan.bind(this);
-      window.addEventListener("mousedown", this.startPanHandler);
+      this.ctx.drawImage(this.offScreenCtx.canvas, -this.ctx.canvas.width, 0);
+      // this.drawCanvas(0);
+      // this.startPanHandler = this.startPan.bind(this);
+      // this.trackMouseHandler = this.trackMouse.bind(this);
+      // this.panHandler = this.pan.bind(this);
+      // this.endPanHandler = this.endPan.bind(this);
+      // window.addEventListener("mousedown", this.startPanHandler);
 
       //Registering the button!
       this.btn = document.getElementById('btnStart');
@@ -118,110 +117,87 @@ export default class PanContext {
       this.aNewContext1.fillStyle = 'red';
       this.aNewContext1.fill();
     }
+
+    drawCanvas(delta) {
+      this.totalSeconds += delta;
+      var x = -1 * (this.offScreenCtx.canvas.width - this.ctx.canvas.width) / 2 * (1 + Math.cos(this.totalSeconds / Math.PI));
+      // var y = -1 * (this.img.height - this.ctx.canvas.height) / 2 * (1 + -Math.sin(this.totalSeconds / Math.PI));
+      // console.log("X : " + x);
+      // console.log("Y : " + y);
+      // console.log(x + " : " + y + " AND TIME IS: " + this.totalSeconds);
+      console.log(x);
+      this.ctx.drawImage(this.offScreenCtx.canvas, x, 0);
+    }
   
-    startPan(event) {
-      window.addEventListener("mousemove", this.trackMouseHandler);
-      window.addEventListener("mousemove", this.panHandler);
-      window.addEventListener("mouseup", this.endPanHandler);
+  
+    // startPan(event) {
+    //   window.addEventListener("mousemove", this.trackMouseHandler);
+    //   window.addEventListener("mousemove", this.panHandler);
+    //   window.addEventListener("mouseup", this.endPanHandler);
       
-      //Since the offscreen canvas is bigger than the onscreen canvas
-      //We will add their size differences to the start points of the panning
-      //If we don't add the size difference, the offscreen canvas jumps to where
-      //The mouse is, and that's what we don't want
-      if (this.oneTimeToggle) {
-        this.panning.start.x = event.clientX + this.widthDifference;
-        this.panning.start.y = event.clientY + this.heightDifference;
-        this.oneTimeToggle = false;
-      }
-      else if (!this.oneTimeToggle) {
-        this.panning.start.x = event.clientX;
-        this.panning.start.y = event.clientY;
-      }
-    }
+    //   //Since the offscreen canvas is bigger than the onscreen canvas
+    //   //We will add their size differences to the start points of the panning
+    //   //If we don't add the size difference, the offscreen canvas jumps to where
+    //   //The mouse is, and that's what we don't want
+    //   if (this.oneTimeToggle) {
+    //     this.panning.start.x = event.clientX + this.widthDifference;
+    //     this.panning.start.y = event.clientY + this.heightDifference;
+    //     this.oneTimeToggle = false;
+    //   }
+    //   else if (!this.oneTimeToggle) {
+    //     this.panning.start.x = event.clientX;
+    //     this.panning.start.y = event.clientY;
+    //   }
+    // }
   
-    endPan(event) {
-      window.removeEventListener("mousemove", this.trackMouseHandler);
-      window.removeEventListener("mousemove", this.panHandler);
-      window.removeEventListener("mouseup", this.endPanHandler);
-      this.panning.start.x = null;
-      this.panning.start.y = null;
-      this.global.offset.x = this.panning.offset.x;
-      this.global.offset.y = this.panning.offset.y;
-    }
+    // endPan(event) {
+    //   window.removeEventListener("mousemove", this.trackMouseHandler);
+    //   window.removeEventListener("mousemove", this.panHandler);
+    //   window.removeEventListener("mouseup", this.endPanHandler);
+    //   this.panning.start.x = null;
+    //   this.panning.start.y = null;
+    //   this.global.offset.x = this.panning.offset.x;
+    //   this.global.offset.y = this.panning.offset.y;
+    // }
   
-    trackMouse(event) {
-      var offsetX = event.clientX - this.panning.start.x;
-      var offsetY = event.clientY - this.panning.start.y;
-      this.panning.offset.x = this.global.offset.x + offsetX;
-      this.panning.offset.y = this.global.offset.y + offsetY;
-    }
+    // trackMouse(event) {
+    //   var offsetX = event.clientX - this.panning.start.x;
+    //   var offsetY = event.clientY - this.panning.start.y;
+    //   this.panning.offset.x = this.global.offset.x + offsetX;
+    //   this.panning.offset.y = this.global.offset.y + offsetY;
+    // }
   
-    pan(event) {
-      this.ctx.setTransform(1,0,0,1,0,0);
-      this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
-      this.ctx.translate(this.panning.offset.x, this.panning.offset.y);
-      console.log("YOU ARE AT { x : " + this.panning.offset.x + ", y : " + this.panning.offset.y + "} ")
-      //this.drawOffScreen(this.panning.offset.x, this.panning.offset.y);
-    }
+    // pan(event) {
+    //   this.ctx.setTransform(1,0,0,1,0,0);
+    //   this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+    //   this.ctx.translate(this.panning.offset.x, this.panning.offset.y);
+    //   console.log("YOU ARE AT { x : " + this.panning.offset.x + ", y : " + this.panning.offset.y + "} ")
+    //   //this.drawOffScreen(this.panning.offset.x, this.panning.offset.y);
+    // }
 
     moveTheScreen() {
       this.looping = !this.looping;
 
-      if (this.looping){
-        //requestAnimationFrame(this.moveTheScreenExtension.bind(this));
-        this.moveTheScreenExtension();
+      if (this.looping) {
+        this.lastTimeFrame = Date.now();
+        this.whatItShouldBe = this.totalSeconds + 4;
+        requestAnimationFrame(this.moveTheScreenExtension.bind(this));
       }
     }
 
     moveTheScreenExtension() {
       if (!this.looping) {
-        console.log(this.looping);
         return;
       }
-      
       requestAnimationFrame(this.moveTheScreenExtension.bind(this));
-      console.log(this.looping);
-      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
-      //We Either Go Left Or Right
-      //First we go Left
-      if (this.comboBox.value == "Left") {
-        if (this.scrollValue >= this.ctx.canvas.width) {
-          //DRAWING THE LAST FRAME
-          this.scrollValue -= this.speed;
-          this.ctx.drawImage(this.offScreenCtx.canvas,this.ctx.canvas.width - this.scrollValue,
-            0, this.scrollValue, this.offScreenCtx.canvas.height, 0, 0, this.scrollValue, this.offScreenCtx.canvas.height);
-  
-          //RESETTING THE REST OF THE VALUES TO STOP ANIMATING
-          this.scrollValue = 0;
-          this.looping = false;
-          return;
-        }
-  
-        this.scrollValue += this.speed;
-        this.ctx.drawImage(this.offScreenCtx.canvas, this.ctx.canvas.width - this.scrollValue,
-        0, this.scrollValue, this.offScreenCtx.canvas.height, 0, 0, this.scrollValue, this.offScreenCtx.canvas.height);
-      }
-      else if (this.comboBox.value == "Right") {
-        if (this.scrollValue >= this.ctx.canvas.width) {
-          //DRAWING THE LAST FRAME
-          this.scrollValue -= this.speed;
-          this.ctx.drawImage(this.offScreenCtx.canvas, this.ctx.canvas.width-this.scrollValue, 0, 
-            this.offScreenCtx.canvas.width, this.offScreenCtx.canvas.height);   
-  
-          //RESETTING THE REST OF THE VALUES TO STOP ANIMATING
-          this.scrollValue = 0;
-          this.looping = false;
-          return;
-        }
-  
-        this.scrollValue += this.speed;
-        this.ctx.drawImage(this.offScreenCtx.canvas, this.ctx.canvas.width + this.scrollValue, 0, 
-          this.offScreenCtx.canvas.width, this.offScreenCtx.canvas.height);   
-      }
-      //RESETS THE SCROLL (INFINITE SCROLL)
-      // this.ctx.drawImage(this.offScreenCtx.canvas, this.scrollValue, 0, 
-      //   this.offScreenCtx.canvas.width, this.offScreenCtx.canvas.height);
+      this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+      var now = Date.now();
+      var deltaSeconds = (now - this.lastTimeFrame) / 1000;
+      this.lastTimeFrame = now;
+      console.log("Delta: " + deltaSeconds);
+      this.drawCanvas(deltaSeconds);
+      console.log("TOTAL SECONDS: " + this.totalSeconds);
+      console.log("LOOPING: " + this.looping);
     }
   }
   
