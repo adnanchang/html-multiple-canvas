@@ -7,6 +7,11 @@
     </canvas>
     <br>
     <input id="btnStart" type="button" value="Start/Stop">
+    <select id="comboBoxDirection">
+      <option value="Left">Left</option>
+      <option value="Right">Right</option>
+      <option value="Middle">Middle</option>
+    </select>
   </div>
 </template>
 
