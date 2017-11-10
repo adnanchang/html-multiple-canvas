@@ -32,6 +32,14 @@ export default class PanContext {
       this.aNewContext1.strokeStyle = "red";
       this.aNewContext1.strokeRect(0, 0, this.aNewContext1.canvas.width, this.aNewContext1.canvas.height);
 
+      //Making yet another canvas
+      this.aNewCanvas2 = document.createElement("canvas");
+      this.aNewContext2 = this.aNewCanvas2.getContext("2d");
+      this.aNewContext2.canvas.width = this.ctx.canvas.width;
+      this.aNewContext2.canvas.height = this.ctx.canvas.height;
+      this.aNewContext2.strokeStyle = "green";
+      this.aNewContext2.strokeRect(0, 0, this.aNewContext2.canvas.width, this.aNewContext2.canvas.height);
+
       //Some Global Variables
       this.global = {
         scale : 1,
@@ -58,10 +66,12 @@ export default class PanContext {
       this.lastTimeFrame = 0;
       this.looping = false;
       this.whatItShouldBe = 0;
+      this.x = -this.ctx.canvas.width;
   
       this.draw(); // Drawing shapes on the new contexts
       this.offScreenCtx.drawImage(this.aNewContext.canvas, 0, 0);
       this.offScreenCtx.drawImage(this.aNewContext1.canvas, this.ctx.canvas.width * 2, 0);
+      this.offScreenCtx.drawImage(this.aNewContext2.canvas, this.ctx.canvas.width, 0);
 
       this.ctx.drawImage(this.offScreenCtx.canvas, -this.ctx.canvas.width, 0);
       // this.drawCanvas(0);
@@ -77,6 +87,9 @@ export default class PanContext {
 
       //Registering the ComboBox
       this.comboBox = document.getElementById('comboBoxDirection');
+
+      //Registering the status span
+      this.status = document.getElementById('status');
     }
 
     toKickStartEventListener() {
@@ -116,15 +129,34 @@ export default class PanContext {
       this.aNewContext1.arc(350, 250, 50, 0 , 2 * Math.PI, false);
       this.aNewContext1.fillStyle = 'red';
       this.aNewContext1.fill();
+
+
+      // We draw everything on the offscreen canvas's canvas
+      //Drawing a square
+      this.aNewContext2.beginPath();
+      this.aNewContext2.rect(50,50,100,100);
+      this.aNewContext2.fillStyle='pink';
+      this.aNewContext2.fill();
+
+      //Drawing a circle
+      this.aNewContext2.beginPath();
+      this.aNewContext2.arc(350, 250, 50, 0 , 2 * Math.PI, false);
+      this.aNewContext2.fillStyle = 'red';
+      this.aNewContext2.fill();
+
+      //Drawing a circle
+      this.aNewContext2.beginPath();
+      this.aNewContext2.arc(350, 500, 50, 0 , 2 * Math.PI, false);
+      this.aNewContext2.fillStyle = 'black';
+      this.aNewContext2.fill();
     }
 
-    drawCanvas(delta) {
+    drawCanvas(delta, x) {
       this.totalSeconds += delta;
-      var x = -1 * (this.offScreenCtx.canvas.width - this.ctx.canvas.width) / 2 * (1 + Math.cos(this.totalSeconds / Math.PI));
+    //   console.log("-1 * (" + this.offScreenCtx.canvas.width
+    // + " - " + this.ctx.canvas.width + ") / 2 * (1 + " + Math.cos(this.totalSeconds/Math.PI) + "))");
+      // x = x || -1 * (this.offScreenCtx.canvas.width - this.ctx.canvas.width) / 2 * (1 + Math.cos(this.totalSeconds / Math.PI));
       // var y = -1 * (this.img.height - this.ctx.canvas.height) / 2 * (1 + -Math.sin(this.totalSeconds / Math.PI));
-      // console.log("X : " + x);
-      // console.log("Y : " + y);
-      // console.log(x + " : " + y + " AND TIME IS: " + this.totalSeconds);
       console.log(x);
       this.ctx.drawImage(this.offScreenCtx.canvas, x, 0);
     }
@@ -181,7 +213,11 @@ export default class PanContext {
       if (this.looping) {
         this.lastTimeFrame = Date.now();
         this.whatItShouldBe = this.totalSeconds + 4;
+        this.status.innerHTML = "Started";
         requestAnimationFrame(this.moveTheScreenExtension.bind(this));
+      }
+      else { 
+        this.status.innerHTML = "Stopped";
       }
     }
 
@@ -191,13 +227,51 @@ export default class PanContext {
       }
       requestAnimationFrame(this.moveTheScreenExtension.bind(this));
       this.ctx.clearRect(0,0,this.ctx.canvas.width, this.ctx.canvas.height);
+
       var now = Date.now();
       var deltaSeconds = (now - this.lastTimeFrame) / 1000;
       this.lastTimeFrame = now;
-      console.log("Delta: " + deltaSeconds);
-      this.drawCanvas(deltaSeconds);
-      console.log("TOTAL SECONDS: " + this.totalSeconds);
-      console.log("LOOPING: " + this.looping);
+
+      if (this.comboBox.value == "Left") {
+        if (this.x <= 0) {
+          this.x += 5;
+          this.drawCanvas(deltaSeconds, this.x);
+        }
+        else {
+          this.looping = false;
+          this.x -= 5;
+          this.drawCanvas(deltaSeconds, this.x);
+          return;
+        }
+      }
+      else if (this.comboBox.value == "Right") {
+        if (this.x >= -Math.abs(this.ctx.canvas.width * 2)) {
+          this.x -= 5;
+          this.drawCanvas(deltaSeconds, this.x);
+        }
+        else {
+          this.looping = false;
+          this.x += 5;
+          this.drawCanvas(deltaSeconds, this.x);
+          return;
+        }
+      }
+      else if (this.comboBox.value == "Middle") {
+        if (this.x >= -Math.abs(this.ctx.canvas.width)) {
+          this.x -= 5;
+          this.drawCanvas(deltaSeconds, this.x);
+        }
+        else if (this.x <= -Math.abs(this.ctx.canvas.width)) {
+          this.x += 5;
+          this.drawCanvas(deltaSeconds, this.x);
+        }
+        else {
+          this.looping = false;
+          this.x += 5;
+          this.drawCanvas(deltaSeconds, this.x);
+          return;
+        }
+      }
     }
   }
   

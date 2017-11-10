@@ -1,11 +1,12 @@
 <template>
-  <div class="pan">
-    <p>{{msg}}</p>
+  <div class="clickpan">
+    
 
     <canvas id="canvas">
 
     </canvas>
     <br>
+    <label id="status"></label>
     <input id="btnStart" type="button" value="Start/Stop">
     <select id="comboBoxDirection">
       <option value="Left">Left</option>
@@ -53,7 +54,7 @@ main {
 }
 canvas {
   border: 1px solid black;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   /* position: absolute; top: 0; left: 0; */
 }
 
